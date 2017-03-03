@@ -1,6 +1,14 @@
 /* jshint esversion:6 */
 /* globals jQuery, window, console, document */
 
+/*
+   Calculator using shunting yard concepts
+   
+   Operator Precedence based on table here:
+   https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence
+
+*/
+
 (function ($) {
     
     'use strict';
@@ -10,15 +18,24 @@
         // placeholder for cached DOM elements
         DOM = {},
         
-        // output string
-        output = '',
+        // temporary strings for I/O
+        output    = '',
         tempInput = '',
         
-        operatorPriority = [
-            
+        // Operator Precedence        
+        //  sym, weight    description     associative      syntax
+        // ----------------------------------------------------------
+        operatorPrecedence = [
+            ['(', 20],  // Grouping                         ( ... )
+            [')', 20],  // Grouping                         ( ... )
+            ['^', 15],  // Exponentiation  right-to-left   ... ^ ...
+            ['*', 14],  // Multiplication  left-to-right   ... * ...
+            ['/', 14],  // Division        left-to-right   ... / ...
+            ['+', 13],  // Addition        left-to-right   ... + ...
+            ['-', 13]   // Subtraction     left-to-right   ... - ...
         ],
         
-        // two stacks, one for numbers and one for operators
+        // separate stacks numbers and operators
         numbers   = [],
         operators = [];
 
@@ -98,8 +115,15 @@
 
     // operator button click handler
     function onClickOper(oper) {
+                
+        // determine oper's precedence value
+        var operPrecVal = operatorPrecedence
+            .filter( subArr => (subArr[0] === oper) )
+            .map( arr => arr[1] );
         
-        
+        // show me
+        console.log(`'${oper}' has precedence value ${operPrecVal}`);
+                
         
         output += ' ' + oper + ' ';
         render();
