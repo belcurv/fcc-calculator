@@ -41,7 +41,7 @@
         
         // separate stacks numbers and operators
         numbers   = [],
-        operators = [];
+        opers = [];
 
 
     // cache DOM elements
@@ -64,7 +64,8 @@
     function showDiag() {
         console.log('  infix array', infix);
         // console.log('postfix array', postfix);
-        // console.log('numbers stack', numbers);
+        // console.log('    operators', opers);
+        // console.log('      numbers', numbers);
     }
     
     
@@ -101,6 +102,7 @@
         numbers.length = 0;
         infix.length = 0;
         postfix.length = 0;
+        opers.length = 0;
         output = '';
         render();
     }
@@ -149,6 +151,29 @@
         // otherwise, return true
         return true;
     }
+    
+    
+    // find operator precedence value
+    function getPrec(oper) {
+        return operatorPrecedence
+            .filter( subArr => (subArr[0] === oper) )
+            .map( arr => arr[1] );
+    }
+    
+    
+    // perform math
+    function math(regA, regB, op) {
+        switch (op) {
+            case 'x':
+                return regA * regB;
+            case '/':
+                return regA / regB;
+            case '+':
+                return regA + regB;
+            case '-':
+                return regA - regB;
+        }
+    }
 
 
     // operator button click handler
@@ -162,8 +187,6 @@
         
         // push operator to infix array
         infix.push(val);                
-
-        showDiag();
         
         // concat operator to display output and render
         output += ' ' + val + ' ';
@@ -173,6 +196,8 @@
 
     function onClickEval() {
         
+        var regA, regB, op;
+        
         // check state of infix array before continuing
         if (!checkInfixState()) {
             return;
@@ -180,72 +205,56 @@
         
         // assuming the above succeed, celebrate
         console.log('Eval fired!');
+        console.log('=== initial infix array', infix);
         
-        // convert infix > postfix
-        
-        
-        
-//                
-//        // determine oper's precedence value
-//        var operPrecVal = operatorPrecedence
-//            .filter( subArr => (subArr[0] === val) )
-//            .map( arr => arr[1] );
-//        
-//        // show me
-//        console.log(`'${val}' has precedence value ${operPrecVal}`);
-//        
-//        
-        
-        var regA = 0,
-            regB = 0,
-            opr,
-            expressionArr = output.split(' '),
-            floatMapArr = expressionArr.map(function (elem) {
-                return (/[0-9]/.test(elem)) ? parseFloat(elem) : elem;
-            });
-        
-        console.log(floatMapArr);
-        
-        for (var i = 0; i < floatMapArr.length; i += 2) {
+        while (infix.length) {
             
-            if (regA === 0) {
-                opr = floatMapArr[i + 1];
-            
-                switch (opr) {
-                    case '*':
-                        regA += floatMapArr[i] * floatMapArr[i + 2];
-                        break;
-                    case '/':
-                        regA += floatMapArr[i] / floatMapArr[i + 2];
-                        break;
-                    case '+':
-                        regA += floatMapArr[i] + floatMapArr[i + 2];
-                        break;
-                    case '-':
-                        regA += floatMapArr[i] - floatMapArr[i + 2];
-                        break;
-                }
+            if (typeof infix[0] === 'number') {
+                
+                numbers.push(infix.shift());
+                
             } else {
-            opr = floatMapArr[i + 1];
-            
-                switch (opr) {
-                    case '*':
-                        regA += floatMapArr[i] * floatMapArr[i + 2];
-                        break;
-                    case '/':
-                        regA += floatMapArr[i] / floatMapArr[i + 2];
-                        break;
-                    case '+':
-                        regA += floatMapArr[i] + floatMapArr[i + 2];
-                        break;
-                    case '-':
-                        regA += floatMapArr[i] - floatMapArr[i + 2];
-                        break;
+                
+                if (!opers.length ||
+                    getPrec(infix[0]) >= getPrec(opers[opers.length - 1]) ) {
+                    
+                    opers.push(infix.shift());
+                    
+                } else {
+                                        
+                    while (opers.length) {
+                        regB = numbers.pop(); // pop off last number
+                        regA = numbers.pop(); // pop off next last number
+                        op   = opers.pop();   // pop off last operator
+                        numbers.push(math(regA, regB, op));
+                    }
+                    
+                    opers.push(infix.shift());
+                    
                 }
+                
             }
-        } 
+            
+            console.log('----------------loop!---------------');
+            console.log('  infix array', infix);
+            console.log('    operators', opers);
+            console.log('      numbers', numbers);
+            
+        }
         
-        console.log(regA);
+        // finish the job
+        if (opers.length) {
+            while (opers.length) {
+                regB = numbers.pop(); // pop off last number
+                regA = numbers.pop(); // pop off next last number
+                op   = opers.pop();   // pop off last operator
+                numbers.push(math(regA, regB, op));
+            }
+        }
+        
+        // showDiag();
+        output = numbers[0];
+        render();
         
     }
     
