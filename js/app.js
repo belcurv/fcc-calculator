@@ -29,11 +29,15 @@
             ['(', 20],  // Grouping                         ( ... )
             [')', 20],  // Grouping                         ( ... )
             ['^', 15],  // Exponentiation  right-to-left   ... ^ ...
-            ['*', 14],  // Multiplication  left-to-right   ... * ...
+            ['x', 14],  // Multiplication  left-to-right   ... * ...
             ['/', 14],  // Division        left-to-right   ... / ...
             ['+', 13],  // Addition        left-to-right   ... + ...
             ['-', 13]   // Subtraction     left-to-right   ... - ...
         ],
+        
+        // infix and postfix arrays because why not
+        infix     = [],
+        postfix   = [],
         
         // separate stacks numbers and operators
         numbers   = [],
@@ -56,6 +60,14 @@
     }
     
     
+    // diagnostics
+    function showDiag() {
+        console.log('  infix array', infix);
+        // console.log('postfix array', postfix);
+        // console.log('numbers stack', numbers);
+    }
+    
+    
     // determine what type of input the event received 
     function handleInput(e) {
         
@@ -63,26 +75,17 @@
         
         if (e.target !== e.currentTarget) {
 
-            if (/[0-9]/.test(val)) {
-                // input is a number, add to temp variable
-                tempInput += val;
+            if (/[\d]|[\.]/.test(val)) {
+                // input is NUMBER or DECIMAL
                 onClickNum(val);
-            } else if (val === '.') {
-                // input is decimal point, add to temp variable
-                tempInput += val;
-                onClickNum(val);
+
             } else if (val === 'eval') {
-                // input is eval, handle math!
+                // input is EVAL
                 onClickEval();
+                
             } else {
-                // input is an operator.
-                // convert temp variable to number & push to numbers stack,
-                // clear temp variable,
-                // and evaluate operator precedence.
-                numbers.push(parseFloat(tempInput));
-                tempInput = '';
+                // input is an OPERATOR
                 onClickOper(val);
-                console.log('numbers', numbers);
             }
         }
 
@@ -95,42 +98,103 @@
     function clearClicked() {
         console.log('Clear!');
         tempInput = '';
+        numbers.length = 0;
+        infix.length = 0;
+        postfix.length = 0;
         output = '';
         render();
     }
 
 
-    // prepare and render number inputs
-    function onClickNum(num) {
-
-        // convert numbers to strings
-        if (typeof num === 'number') {
-            num = num.toString();
+    // number button click handler.
+    // prepares each number or decimal input value,
+    // appends val to tempInput and output strings
+    // before rendering to screen
+    function onClickNum(val) {
+        
+        // make sure any numbers are strings
+        if (typeof val === 'number') {
+            val = val.toString();
         }
         
-        output += num;
+        // concat val to temp variable
+        tempInput += val;
+        
+        output += val;
         render();
+    }
+    
+    
+    // checks state of infix array,
+    // pushes tempInput value if it exists
+    function checkInfixState() {
+
+        // if tempInput has value, convert to number, push to infix,
+        // and clear the tempInput variable
+        if (tempInput.length) {
+            infix.push(parseFloat(tempInput));
+            tempInput = '';
+        }
+        
+        // return false if infix has no values
+        if (!infix.length) {
+            return false;
+        }
+        
+        // return false if last infix value is NOT a number
+        if (typeof infix[infix.length - 1] !== "number") {
+            return false;
+        }
+        
+        // otherwise, return true
+        return true;
     }
 
 
     // operator button click handler
-    function onClickOper(oper) {
-                
-        // determine oper's precedence value
-        var operPrecVal = operatorPrecedence
-            .filter( subArr => (subArr[0] === oper) )
-            .map( arr => arr[1] );
+    function onClickOper(val) {
         
-        // show me
-        console.log(`'${oper}' has precedence value ${operPrecVal}`);
-                
+        // only push operator to infix array if it satisfies conditions:
+        // infix must have lenth, and last element must be type = number
+        if (!checkInfixState()) {
+            return;
+        }
         
-        output += ' ' + oper + ' ';
+        // push operator to infix array
+        infix.push(val);                
+
+        showDiag();
+        
+        // concat operator to display output and render
+        output += ' ' + val + ' ';
         render();
     }
 
 
     function onClickEval() {
+        
+        // check state of infix array before continuing
+        if (!checkInfixState()) {
+            return;
+        }
+        
+        // assuming the above succeed, celebrate
+        console.log('Eval fired!');
+        
+        // convert infix > postfix
+        
+        
+        
+//                
+//        // determine oper's precedence value
+//        var operPrecVal = operatorPrecedence
+//            .filter( subArr => (subArr[0] === val) )
+//            .map( arr => arr[1] );
+//        
+//        // show me
+//        console.log(`'${val}' has precedence value ${operPrecVal}`);
+//        
+//        
         
         var regA = 0,
             regB = 0,
@@ -186,7 +250,7 @@
     }
     
         
-    // render DOM
+    // render calculator display
     function render() {
 
         if (output === undefined || output === '') {
@@ -207,7 +271,7 @@
     }
     
 
-    // IIFE auto-fires on app load
+    // auto-init on page load
     (function init() {
         cacheDom();
         bindEvents();
