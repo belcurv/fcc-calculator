@@ -54,9 +54,10 @@ body {
     display: flex;
     -ms-flex-flow: row wrap;
     flex-flow: row wrap;
+    margin-top: -2px;
+    margin-bottom: -2px;
 }
 
-.btn-clear,
 .btn.calc-functions,
 .btn.calc-numbers {
     cursor: pointer;
@@ -91,21 +92,6 @@ body {
     padding: 26px;
 }
 
-.btn-clear {
-    -webkit-box-flex: 0;
-    -ms-flex: none;
-    flex: none;
-    text-align: center;
-    font-size: 36px;
-    padding: 26px;
-    margin-top: 2px;
-    margin-bottom: 2px;
-    margin-left: auto;
-    width: 94px;
-    color: #000;
-    background-color: #a1d0ce;
-}
-
 .btn.calc-functions {
     color: #000;
     background-color: #a1d0ce;
@@ -116,7 +102,6 @@ body {
     background-color: #71716a;
 }
 
-.btn-clear:hover,
 .btn.calc-functions:hover,
 .btn.calc-numbers:hover {
     background-color: #b18473;

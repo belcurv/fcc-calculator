@@ -23,7 +23,6 @@
     function cacheDom() {
         DOM.$calculator = $('#calculator');
         DOM.$display    = DOM.$calculator.find('.calc-display');
-        DOM.$clearBtn   = DOM.$calculator.find('.btn-clear');
         DOM.$buttons    = DOM.$calculator.find('.btn-container');
     }
 
@@ -31,7 +30,6 @@
     // bind events
     function bindEvents() {
         DOM.$buttons.on('click', handleInput);
-        DOM.$clearBtn.on('click', clearClicked);
     }
     
     
@@ -50,6 +48,14 @@
                 // input is EVAL
                 onClickEval();
                 
+            } else if (val === 'clear') {
+                // input is CLEAR
+                onClickClear();
+                
+            } else if (/[\(\)]/.test(val)) {
+                // input is PARENTHESIS
+                onClickParens(val);
+            
             } else {
                 // input is an OPERATOR
                 onClickOper(val);
@@ -62,12 +68,48 @@
     
     
     // bind clear button click events
-    function clearClicked() {
+    function onClickClear() {
         console.log('Clear!');
         tempInput = '';
         infix.length = 0;
         output = '';
         render();
+    }
+    
+    
+    // parenthesis buttons click handler
+    function onClickParens(val) {
+        
+        // don't accept parens if tempInput has un-pushed number
+        if (val === '(' && tempInput.length > 0 || 
+            val === ')' && tempInput.length === 0) {
+            
+            return;
+            
+        }
+        
+        // infix arr needs to end with an operator to receive '('
+        if (val === '(' && /[\+x\/\-\^]/.test(infix[infix.length - 1])) {
+            
+            infix.push(val);
+            output += ' ' + val + ' ';
+        }
+        
+        // infix arr needs to end with a number to receive ')'
+        if (val === ')') {
+            
+            // push whatever is in tempInput
+            infix.push(parseFloat(tempInput));
+            tempInput = '';
+            
+            // push the parens
+            infix.push(val);
+            output += ' ' + val + ' ';
+            
+        }
+        
+        render();
+        
     }
 
 
@@ -106,8 +148,9 @@
             return false;
         }
         
-        // return false if last infix value is NOT a number
-        if (typeof infix[infix.length - 1] !== "number") {
+        // return false if last infix value is NOT a number and right parense
+        if (typeof infix[infix.length - 1] !== 'number' &&
+            infix[infix.length - 1] !== ')') {
             return false;
         }
         
