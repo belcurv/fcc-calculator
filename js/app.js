@@ -1,11 +1,9 @@
 /* jshint esversion:6 */
-/* globals jQuery, window, console, document */
+/* globals jQuery, console, RPN */
 
 /*
-   Calculator using shunting yard concepts
-   
-   Operator Precedence based on table here:
-   https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence
+   Simple javascrit calculator
+   Uses 'shunting yard' / reverse polish notation for evaluation.
 
 */
 
@@ -13,35 +11,12 @@
     
     'use strict';
     
-    
-    var 
-        // placeholder for cached DOM elements
-        DOM = {},
-        
-        // temporary strings for I/O
-        output    = '',
-        tempInput = '',
-        
-        // Operator Precedence        
-        //  sym, weight    description     associative      syntax
-        // ----------------------------------------------------------
-        operatorPrecedence = [
-            ['(', 20],  // Grouping                         ( ... )
-            [')', 20],  // Grouping                         ( ... )
-            ['^', 15],  // Exponentiation  right-to-left   ... ^ ...
-            ['x', 14],  // Multiplication  left-to-right   ... * ...
-            ['/', 14],  // Division        left-to-right   ... / ...
-            ['+', 13],  // Addition        left-to-right   ... + ...
-            ['-', 13]   // Subtraction     left-to-right   ... - ...
-        ],
-        
-        // infix and postfix arrays because why not
-        infix     = [],
-        postfix   = [],
-        
-        // separate stacks numbers and operators
-        numbers   = [],
-        opers = [];
+    var DOM       = {},   // cached DOM elements
+        infix     = [],   // infix exp array
+        output    = '',   // calculator's display
+        tempInput = '',   // number input as string
+        postfix,          // postfix exp array
+        result;           // result of postfix evaluation
 
 
     // cache DOM elements
@@ -57,15 +32,6 @@
     function bindEvents() {
         DOM.$buttons.on('click', handleInput);
         DOM.$clearBtn.on('click', clearClicked);
-    }
-    
-    
-    // diagnostics
-    function showDiag() {
-        console.log('  infix array', infix);
-        // console.log('postfix array', postfix);
-        // console.log('    operators', opers);
-        // console.log('      numbers', numbers);
     }
     
     
@@ -99,10 +65,7 @@
     function clearClicked() {
         console.log('Clear!');
         tempInput = '';
-        numbers.length = 0;
         infix.length = 0;
-        postfix.length = 0;
-        opers.length = 0;
         output = '';
         render();
     }
@@ -153,29 +116,6 @@
     }
     
     
-    // find operator precedence value
-    function getPrec(oper) {
-        return operatorPrecedence
-            .filter( subArr => (subArr[0] === oper) )
-            .map( arr => arr[1] );
-    }
-    
-    
-    // perform math
-    function math(regA, regB, op) {
-        switch (op) {
-            case 'x':
-                return regA * regB;
-            case '/':
-                return regA / regB;
-            case '+':
-                return regA + regB;
-            case '-':
-                return regA - regB;
-        }
-    }
-
-
     // operator button click handler
     function onClickOper(val) {
         
@@ -196,64 +136,20 @@
 
     function onClickEval() {
         
-        var regA, regB, op;
-        
         // check state of infix array before continuing
         if (!checkInfixState()) {
             return;
         }
         
+        postfix = RPN.infixToPostfix(infix);
+        result  = RPN.evalPostfix(postfix);
+        
         // assuming the above succeed, celebrate
-        console.log('Eval fired!');
-        console.log('=== initial infix array', infix);
+        console.log('=== initial infix array:', infix);
+        console.log('===       postfix array:', postfix);
+        console.log('===              result:', result);
         
-        while (infix.length) {
-            
-            if (typeof infix[0] === 'number') {
-                
-                numbers.push(infix.shift());
-                
-            } else {
-                
-                if (!opers.length ||
-                    getPrec(infix[0]) >= getPrec(opers[opers.length - 1]) ) {
-                    
-                    opers.push(infix.shift());
-                    
-                } else {
-                                        
-                    while (opers.length) {
-                        regB = numbers.pop(); // pop off last number
-                        regA = numbers.pop(); // pop off next last number
-                        op   = opers.pop();   // pop off last operator
-                        numbers.push(math(regA, regB, op));
-                    }
-                    
-                    opers.push(infix.shift());
-                    
-                }
-                
-            }
-            
-            console.log('----------------loop!---------------');
-            console.log('  infix array', infix);
-            console.log('    operators', opers);
-            console.log('      numbers', numbers);
-            
-        }
-        
-        // finish the job
-        if (opers.length) {
-            while (opers.length) {
-                regB = numbers.pop(); // pop off last number
-                regA = numbers.pop(); // pop off next last number
-                op   = opers.pop();   // pop off last operator
-                numbers.push(math(regA, regB, op));
-            }
-        }
-        
-        // showDiag();
-        output = numbers[0];
+        output = result;
         render();
         
     }
