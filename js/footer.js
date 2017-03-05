@@ -8,7 +8,7 @@
     
     var $footer  = $('footer'),
         desc     = 'Calculator',
-        version  = '0.0.3',
+        version  = '1.0.0',
         link     = 'https://github.com/belcurv/fcc-calculator',
         template = `
             <p class="footer-credit"> ${desc} : v${version} : by 
