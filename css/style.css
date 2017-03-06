@@ -28,7 +28,7 @@ body {
 
 .calc-body {
     margin: 20px auto;
-    width: 400px;
+    width: 320px;
     background: #f2f2f2;
     border: 5px solid #f2f2f2;
     border-radius: 5px;
@@ -89,7 +89,8 @@ body {
     flex: 1 0 24%;
     text-align: center;
     font-size: 36px;
-    padding: 26px;
+    padding: 16px;
+    height: 75px;
 }
 
 .btn.calc-functions {
