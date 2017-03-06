@@ -16,13 +16,15 @@
         output    = '',   // calculator's display
         tempInput = '',   // number input as string
         postfix,          // postfix exp array
+        exprStr   = '',   // expression for 2ndary display 
         result;           // result of postfix evaluation
 
 
     // cache DOM elements
     function cacheDom() {
         DOM.$calculator = $('#calculator');
-        DOM.$display    = DOM.$calculator.find('.calc-display');
+        DOM.$primaryDisplay   = DOM.$calculator.find('.primary-display');
+        DOM.$secondaryDisplay = DOM.$calculator.find('.secondary-display');
         DOM.$buttons    = DOM.$calculator.find('.btn-container');
     }
 
@@ -33,7 +35,7 @@
     }
     
     
-    // determine what type of input the event received 
+    // handle events depending on type of input received 
     function handleInput(e) {
         
         var val = e.target.dataset.value;
@@ -73,6 +75,7 @@
         tempInput = '';
         infix.length = 0;
         output = '';
+        exprStr = '';
         render();
     }
     
@@ -80,7 +83,7 @@
     // parenthesis buttons click handler
     function onClickParens(val) {
         
-        // don't accept parens if tempInput has un-pushed number
+        // reject parens conditionally
         if (val === '(' && tempInput.length > 0 || 
             val === ')' && tempInput.length === 0) {
             
@@ -88,17 +91,20 @@
             
         }
         
-        // infix arr needs to end with an operator to receive '('
-        if (val === '(' && /[\+x\/\-\^]/.test(infix[infix.length - 1])) {
+        // infix arr needs to either have 0 length or end with an operator
+        // to receive '('
+        if (val === '(' &&
+            ( /[\+x\/\-\^]/.test(infix[infix.length - 1]) ||
+              infix.length === 0 )) {
             
             infix.push(val);
             output += ' ' + val + ' ';
         }
         
-        // infix arr needs to end with a number to receive ')'
         if (val === ')') {
             
-            // push whatever is in tempInput
+            // infix arr needs to end with a number to receive ')', so
+            // push whatever is in tempInput before pushing ')'.
             infix.push(parseFloat(tempInput));
             tempInput = '';
             
@@ -192,6 +198,7 @@
         console.log('===       postfix array:', postfix);
         console.log('===              result:', result);
         
+        exprStr = output;
         output = result;
         render();
         
@@ -202,9 +209,11 @@
     function render() {
 
         if (output === undefined || output === '') {
-            DOM.$display.html(0);
+            DOM.$primaryDisplay.html(0);
+            DOM.$secondaryDisplay.html('');
         } else {
-            DOM.$display.html(output);
+            DOM.$primaryDisplay.html(output);
+            DOM.$secondaryDisplay.html(exprStr);
         }        
     }
     
@@ -223,6 +232,7 @@
     (function init() {
         cacheDom();
         bindEvents();
+        onClickClear();
     }());
     
 }(jQuery));

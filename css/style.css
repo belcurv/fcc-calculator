@@ -15,8 +15,8 @@ body {
     -webkit-box-direction: normal;
     -ms-flex-direction: column;
     flex-direction: column;
-    background: -webkit-linear-gradient( #0e9889, #1aabe1 ) center center no-repeat fixed;
-    background: linear-gradient( #0e9889, #1aabe1 ) center center no-repeat fixed;
+    background: -webkit-linear-gradient( #0e9889, #1aabe1) center center no-repeat fixed;
+    background: linear-gradient( #0e9889, #1aabe1) center center no-repeat fixed;
 }
 
 .container {
@@ -37,15 +37,31 @@ body {
 }
 
 .calc-display {
+    position: relative;
     width: 100%;
     height: 100px;
-    margin-bottom: 4px;
-    padding: 28px 10px;
+    margin-bottom: 2px;
     background-color: #000;
-    font-size: 40px;
     text-align: right;
     color: #fff;
     border-radius: 2px;
+}
+
+.secondary-display {
+    color: #999;
+    display: inline-block;
+    font-size: 20px;
+    height: 35px;
+    margin: 0;
+    padding: 10px;
+}
+
+.primary-display {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    padding: 7px 10px;
+    font-size: 40px;
 }
 
 .btn-container {
@@ -53,8 +69,9 @@ body {
     display: -ms-flexbox;
     display: flex;
     -ms-flex-flow: row wrap;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
     flex-flow: row wrap;
-    margin-top: -2px;
     margin-bottom: -2px;
 }
 
@@ -62,13 +79,17 @@ body {
 .btn.calc-numbers {
     cursor: pointer;
     -webkit-transition: background-color 0.25s linear;
+    -webkit-transition: background-color 0.15s linear;
     transition: background-color 0.15s linear;
     border: 1px solid #333;
     border-radius: 2px;
-    -webkit-user-select: none;  /* Chrome all / Safari all */
-    -moz-user-select: none;     /* Firefox all */
-    -ms-user-select: none;      /* IE 10+ */
-    user-select: none; 
+    -webkit-user-select: none;
+    /* Chrome all / Safari all */
+    -moz-user-select: none;
+    /* Firefox all */
+    -ms-user-select: none;
+    /* IE 10+ */
+    user-select: none;
 }
 
 .btn {
@@ -110,6 +131,7 @@ body {
 
 
 /* footer */
+
 .belcurv-footer {
     padding: 0.85em 0;
     background: #404040;
