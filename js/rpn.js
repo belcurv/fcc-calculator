@@ -24,40 +24,19 @@ var RPN = (function () {
     /* Convert Infix expression STRING to ARRAY.
      * Handles strings with and without whitespace between tokens
      * 
-     * @params    [string]   infix   [string of infix operands & operators]
-     * @returns   [array]            [array of infix operands & operators]
+     * @params   [string]  infix  [string of infix operands & operators]
+     * @returns  [array]          [array of operands (nums) & operators (strs)]
     */
     function infixStrToArr(infix) {
         
-        // '1 + 2 x 3 - 4'
+        // ex. infix: '5.5 + 666 x (.55 - 11) x 3 / (9 + 1)'
+        // becomes postfix:
+        // [ 5.5, "+", 666, "x", "(", 0.55, "-", 11, ")", "x", 3, "/", "(", 9, "+", 1, ")" ]
         
-        var infixArr = [],
-            operands = [],
-            operators = [],
-            i;
-        
-        if (typeof infix === 'string') {
-            
-            // get operands as trimmed numbers
-            operands = infix
-                .split(/[\+x\/\-\^]/)
-                .map( operand => parseFloat(operand.trim()) );
-            
-            // get operators as trimmed strings
-            operators = infix
-                .split(/\d/)
-                .filter( el => (/[\+x\/\-\^]/.test(el)) )
-                .map( operator => operator.trim() );
-            
-            // merge operands and operators arrays
-            infixArr = operands
-                .map( (el, ind) => [el, operators[ind]] )
-                .reduce( (acc, el) => acc.concat(el) )
-                .filter( (el) => el !== undefined );
-            
-        }
-        
-        return infixArr;
+        return infix
+            .replace(/\s+/g, '')
+            .match(/(\d+\.\d+|\.\d+|\d+|\D)/g)
+            .map( el => (/\d/.test(el) ? parseFloat(el) : el) );
         
     }
     
